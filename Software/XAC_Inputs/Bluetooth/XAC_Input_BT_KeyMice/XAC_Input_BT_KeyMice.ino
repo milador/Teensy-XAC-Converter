@@ -1,5 +1,10 @@
 #include "USBHost_t36.h"
 
+#define BEGIN()     useManualSend(true)
+#define SETXAXIS(x) X(x)
+#define SETYAXIS(x) Y(x)
+#define SETBUTTON(button_num, value)    button(((button_num)), (value))
+#define SENDSTATE() send_now()
 
 typedef struct { 
   long int keyboardNum;
@@ -24,15 +29,15 @@ typedef struct {
 
 
 const keyboardStruct keyboardDictionary[] {
-    {0," ",32,0},                        //Space
-    {1,"!",33,0},                        //!
-    {2,"\"",34,0},                       //"
-    {3,"#",35,0},                        //#
-    {4,"$",36,0},                        //$
-    {5,"%",37,0},                        //%
-    {6,"&",38,0},                        //&
-    {7,"'",39,0},                        //'
-    {8,"(",40,0},                        //(
+    {0," ",32,5},                        //Space
+    {1,"!",33,1},                        //!
+    {2,"\"",34,2},                       //"
+    {3,"#",35,3},                        //#
+    {4,"$",36,4},                        //$
+    {5,"%",37,5},                        //%
+    {6,"&",38,6},                        //&
+    {7,"'",39,7},                        //'
+    {8,"(",40,8},                        //(
     {9,")",41,0},                        //)
     {10,"*",42,0},                       //*
     {11,"+",43,0},                       //+
@@ -56,7 +61,7 @@ const keyboardStruct keyboardDictionary[] {
     {29,"=",61,0},                       //=
     {30,">",62,0},                       //>
     {31,"?",63,0},                       //?
-    {32,"a",97,0},                         //a                                      
+    {32,"a",97,5},                         //a                                      
     {33,"b",98,0},                         //b
     {34,"c",99,0},                         //c
     {35,"d",100,0},                        //d
@@ -68,20 +73,20 @@ const keyboardStruct keyboardDictionary[] {
     {41,"j",106,0},                         //j
     {42,"k",107,0},                         //k
     {43,"l",108,0},                         //l
-    {44,"m",109,5},                         //m
+    {44,"m",109,0},                         //m
     {45,"n",110,0},                         //n
     {46,"o",111,0},                         //o
     {47,"p",112,0},                         //p
     {48,"q",113,0},                         //q
     {49,"r",114,0},                         //r
-    {50,"s",115,0},                         //s
+    {50,"s",115,6},                         //s
     {51,"t",116,0},                         //t
     {52,"u",117,0},                         //u
     {53,"v",118,0},                         //v
     {54,"w",119,0},                         //w
-    {55,"x",120,0},                         //x
+    {55,"x",120,2},                         //x
     {56,"y",121,0},                         //y
-    {57,"z",122,0},                         //z
+    {57,"z",122,1},                         //z
     {58,"{",123,0},                         //{
     {59,"|",124,0},                         //|
     {60,"}",125,0},                         //}
@@ -99,10 +104,10 @@ const keyboardStruct keyboardDictionary[] {
     {72," ",176,0},                         //RETURN
     {73," ",177,0},                         //ESC
     {74," ",193,0},                         //CAPSLOCK
-    {75," ",KEYD_UP,0},                         //UP
-    {76," ",KEYD_DOWN,0},                         //DN
-    {77," ",KEYD_LEFT,0},                         //LEFT
-    {78," ",KEYD_RIGHT,0},                         //RIGHT
+    {75," ",KEYD_UP,9},                         //UP
+    {76," ",KEYD_DOWN,10},                         //DN
+    {77," ",KEYD_LEFT,11},                         //LEFT
+    {78," ",KEYD_RIGHT,12},                         //RIGHT
     {79," ",KEYD_INSERT,0},                         //INS
     {80," ",KEYD_DELETE,0},                         //DEL
     {81," ",KEYD_PAGE_UP,0},                         //PUP
@@ -174,9 +179,9 @@ USBHIDParser hid4(myusb);
 USBHIDParser hid5(myusb);
 MouseController mouse1(myusb);
 //JoystickController joystick1(myusb);
-BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
+//BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
 
-//BluetoothController bluet(myusb);   // version assumes it already was paired
+BluetoothController bluet(myusb);   // version assumes it already was paired
 
 USBDriver *drivers[] = {&hub1, &hub2, &keyboard1, &bluet, &hid1, &hid2, &hid3, &hid4, &hid5};
 
@@ -232,14 +237,17 @@ int getSpecJoystickButton(int code) {
 
 void setup()
 {
-  while (!Serial) ; // wait for Arduino Serial Monitor
+  delay(5000);
+  //while (!Serial) ; // wait for Arduino Serial Monitor
   Serial.begin(115200);
   Serial1.begin(115200);
   Serial.println("\n\nUSB Host Testing");
   Serial.println(sizeof(USBHub), DEC);
   myusb.begin();
   keyboard1.attachPress(OnPress);
+  keyboard1.attachRelease(OnRelease);
   //keyboard2.attachPress(OnPress);
+  Joystick.BEGIN();
 }
 
 
@@ -249,7 +257,7 @@ void loop()
   UpdateActiveDeviceInfo();
 
   myusb.Task();
-
+  /*
   if (mouse1.available()) {
     Serial.print("Mouse: buttons = ");
     Serial.print(mouse1.getButtons());
@@ -264,10 +272,40 @@ void loop()
     Serial.println();
     mouse1.mouseDataClear();
   }
+  */
+}
+
+void pressXAC(int key)
+{
+  if(key==9){ //UP
+    Joystick.SETYAXIS(1023);
+    Joystick.SENDSTATE();
+  } else if(key==10){ //DN
+    Joystick.SETYAXIS(0);
+    Joystick.SENDSTATE();    
+  } else if(key==11){ //LEFT
+    Joystick.SETXAXIS(0);
+    Joystick.SENDSTATE();    
+  } else if(key==12){  //RIGHT
+    Joystick.SETXAXIS(1023);
+    Joystick.SENDSTATE();    
+  } else if(key<=8 && key>=1){  //RIGHT
+    Joystick.SETBUTTON(key,1);
+    Joystick.SENDSTATE();    
+  } 
+}
+
+void releaseXAC()
+{
+    Joystick.SETXAXIS(512);
+    Joystick.SETYAXIS(512);
+    Joystick.SENDSTATE();
 }
 
 void OnPress(int key)
 {
+  pressXAC(getJoystickButton(key));
+  /*
   Serial.print("key: '");
   Serial.print(key); 
   Serial.print(" ,char key: '");
@@ -275,12 +313,15 @@ void OnPress(int key)
   Serial.print(" ,XAC key: "); 
   Serial.print(getJoystickButton(key));
   Serial.print(" ,MOD: ");
+  */
   if (keyboard1) {
+    /*
     Serial.print(keyboard1.getModifiers(), HEX);
     Serial.print(" OEM: ");
     Serial.print(keyboard1.getOemKey(), HEX);
     Serial.print(" LEDS: ");
     Serial.println(keyboard1.LEDS(), HEX);
+    */
     //} else {
     //Serial.print(keyboard2.getModifiers(), HEX);
     //Serial.print(" OEM: ");
@@ -294,6 +335,17 @@ void OnPress(int key)
   //Serial.print("  ");
   //Serial.print((char)keyboard2.getKey());
   //Serial.println();
+}
+
+void OnRelease(int key)
+{
+   //Serial.println("Release");
+   Joystick.SETXAXIS(512);
+   Joystick.SETYAXIS(512);
+   for (int i = 1; i <= 8; i++) {
+      Joystick.SETBUTTON(i,0);
+    }
+   Joystick.SENDSTATE();
 }
 
 //=============================================================================

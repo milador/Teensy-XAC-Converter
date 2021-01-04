@@ -1,4 +1,7 @@
+
+
 #include "USBHost_t36.h"
+
 
 #define BEGIN()     useManualSend(true)
 #define SETXAXIS(x) X(x)
@@ -241,8 +244,8 @@ void setup()
   //while (!Serial) ; // wait for Arduino Serial Monitor
   Serial.begin(115200);
   Serial1.begin(115200);
-  Serial.println("\n\nUSB Host Testing");
-  Serial.println(sizeof(USBHub), DEC);
+  //Serial.println("\n\nUSB Host Testing");
+  //Serial.println(sizeof(USBHub), DEC);
   myusb.begin();
   keyboard1.attachPress(OnPress);
   keyboard1.attachRelease(OnRelease);
@@ -254,7 +257,7 @@ void setup()
 void loop()
 {
   // check to see if the device list has changed:
-  UpdateActiveDeviceInfo();
+  //UpdateActiveDeviceInfo();
 
   myusb.Task();
   /*
@@ -351,6 +354,7 @@ void OnRelease(int key)
 //=============================================================================
 // UpdateActiveDeviceInfo
 //=============================================================================
+/*
 void UpdateActiveDeviceInfo() {
   for (uint8_t i = 0; i < CNT_DEVICES; i++) {
     if (*drivers[i] != driver_active[i]) {
@@ -416,3 +420,4 @@ void UpdateActiveDeviceInfo() {
     }
   }
 }
+*/

@@ -1,4 +1,4 @@
-#  XAC-Input-Converter
+#  Teensy-XAC-Converter 
 The goal of this project is to create a device which converts variety of intputs as of Bluetooth/USB HID profiles to USB HID joystick profile.  This will allow end users use other inputs such as keyboard and mouse in addition to joystick with their Xbox Adaptive Controller. 
 
 This project is in development process at the moment.

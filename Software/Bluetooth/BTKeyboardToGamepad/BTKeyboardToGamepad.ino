@@ -1,4 +1,27 @@
-
+/**
+ * BTKeyboardToGamepad.ino
+ * Written by: Milador
+ * Version 1.0 (13/2/2021)
+ * Github Link: https://github.com/milador/Teensy-XAC-Converter/
+ * 
+ * Copyright (c) 2021 milador.ca
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights 
+ * to use, copy, modify, merge, publish, and distribute copies of the Software, 
+ * for non-commercial purposes and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+**/
 
 #include "USBHost_t36.h"
 
@@ -9,28 +32,31 @@
 #define SETBUTTON(button_num, value)    button(((button_num)), (value))
 #define SENDSTATE() send_now()
 
+//Can be customized 
+
+#define DEBUG_MODE true
+
+//
+
+
+//Keyboard Action structure 
 typedef struct { 
   long int keyboardNum;
   const char* keyboardAction;
   int keyboardCode;
-  long int keyboardJoystickAction;
+  long int keyboardGamepadAction;
 } keyboardStruct;
 
-
+//Special Keyboard Action structure 
 typedef struct { 
   long int specKeyboardNum;
   long int specKeyboardCode;
   String specKeyboardName;
-  //const char* lowerChar;
-  long int specKeyboardJoystickAction;
+  long int specKeyboardGamepadAction;
 } specKeyboardStruct;
 
-typedef struct { 
-  long int miceAction;
-  long int miceJoystickAction;
-} miceActionStruct;
 
-
+//Can be customized 
 const keyboardStruct keyboardDictionary[] {
     {0," ",32,5},                        //Space
     {1,"!",33,1},                        //!
@@ -174,17 +200,16 @@ USBHost myusb;
 USBHub hub1(myusb);
 USBHub hub2(myusb);
 KeyboardController keyboard1(myusb);
-//KeyboardController keyboard2(myusb);
 USBHIDParser hid1(myusb);
 USBHIDParser hid2(myusb);
 USBHIDParser hid3(myusb);
 USBHIDParser hid4(myusb);
 USBHIDParser hid5(myusb);
 MouseController mouse1(myusb);
-//JoystickController joystick1(myusb);
-//BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
 
-BluetoothController bluet(myusb);   // version assumes it already was paired
+
+BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
+//BluetoothController bluet(myusb);   // version assumes it already was paired
 
 USBDriver *drivers[] = {&hub1, &hub2, &keyboard1, &bluet, &hid1, &hid2, &hid3, &hid4, &hid5};
 
@@ -206,79 +231,73 @@ BTHIDInput *bthiddrivers[] = {&keyboard1, &mouse1};
 const char * bthid_driver_names[CNT_BTHIDDEVICES] = {"Keyboard(BT)", "Mouse(BT)"};
 bool bthid_driver_active[CNT_BTHIDDEVICES] = {false};
 
-
-
-bool show_changed_only = false;
-
-uint8_t joystick_left_trigger_value = 0;
-uint8_t joystick_right_trigger_value = 0;
-uint64_t joystick_full_notify_mask = (uint64_t) - 1;
-
-int getJoystickButton(int code) {  
-  int joystickOut = 0;
-  //Search for Ascii code based on character number
-  for(uint8_t j = 0; j < sizeof(keyboardDictionary)/sizeof(keyboardStruct); ++j) {
-    if(code == keyboardDictionary[j].keyboardCode)
-    {
-      joystickOut= keyboardDictionary[j].keyboardJoystickAction;
-    }
-  }
-  return joystickOut;
-}
-
-int getSpecJoystickButton(int code) {  
-  int joystickOut = 0;
-  //Search for Ascii code based on character number
-  for(uint8_t j = 0; j < sizeof(specKeyboardDictionary)/sizeof(specKeyboardStruct); ++j) {
-    if(code == specKeyboardDictionary[j].specKeyboardCode)
-    {
-      joystickOut= specKeyboardDictionary[j].specKeyboardJoystickAction;
-    }
-  }
-  return joystickOut;
-}
-
 void setup()
 {
   delay(5000);
   //while (!Serial) ; // wait for Arduino Serial Monitor
+  
   Serial.begin(115200);
   Serial1.begin(115200);
-  //Serial.println("\n\nUSB Host Testing");
-  //Serial.println(sizeof(USBHub), DEC);
+  
+  Serial.println("\n\nXAC-Input-Converter");
+  Serial.println("\n\nBTKeyboardToGamepad");
+  Serial.println(sizeof(USBHub), DEC);
   myusb.begin();
   keyboard1.attachPress(OnPress);
   keyboard1.attachRelease(OnRelease);
-  //keyboard2.attachPress(OnPress);
   Joystick.BEGIN();
 }
 
 
 void loop()
 {
-  // check to see if the device list has changed:
-  //UpdateActiveDeviceInfo();
-
   myusb.Task();
-  /*
-  if (mouse1.available()) {
-    Serial.print("Mouse: buttons = ");
-    Serial.print(mouse1.getButtons());
-    Serial.print(",  mouseX = ");
-    Serial.print(mouse1.getMouseX());
-    Serial.print(",  mouseY = ");
-    Serial.print(mouse1.getMouseY());
-    Serial.print(",  wheel = ");
-    Serial.print(mouse1.getWheel());
-    Serial.print(",  wheelH = ");
-    Serial.print(mouse1.getWheelH());
-    Serial.println();
-    mouse1.mouseDataClear();
-  }
-  */
+
 }
 
-void pressXAC(int key)
+void OnPress(int key)
+{
+  int keyCode = getGamepadButton(key);
+  if(DEBUG_MODE) { printDebug(key,keyCode); }
+  pressGamepadButton(keyCode);
+}
+
+void OnRelease(int key)
+{
+   releaseGamepad();
+}
+
+//***GET GAMEPAD ACTION BUTTONS FUNCTION***//
+
+int getGamepadButton(int code) {  
+  int gamepadOut = 0;
+  //Search for Ascii code based on character number
+  for(uint8_t j = 0; j < sizeof(keyboardDictionary)/sizeof(keyboardStruct); ++j) {
+    if(code == keyboardDictionary[j].keyboardCode)
+    {
+      gamepadOut= keyboardDictionary[j].keyboardGamepadAction;
+    }
+  }
+  return gamepadOut;
+}
+
+//***GET SPEC GAMEPAD ACTION BUTTONS FUNCTION***//
+
+int getSpecGamepadButton(int code) {  
+  int gamepadOut = 0;
+  //Search for Ascii code based on character number
+  for(uint8_t j = 0; j < sizeof(specKeyboardDictionary)/sizeof(specKeyboardStruct); ++j) {
+    if(code == specKeyboardDictionary[j].specKeyboardCode)
+    {
+      gamepadOut= specKeyboardDictionary[j].specKeyboardGamepadAction;
+    }
+  }
+  return gamepadOut;
+}
+
+//***PRESS GAMEPAD BUTTON FUNCTION***//
+
+void pressGamepadButton(int key)
 {
   if(key==9){ //UP
     Joystick.SETYAXIS(1023);
@@ -298,126 +317,27 @@ void pressXAC(int key)
   } 
 }
 
-void releaseXAC()
+//***CLEAR OR RELEASE GAMEPAD ACTION FUNCTION***//
+
+void releaseGamepad()
 {
+    for (int i = 1; i <= 8; i++) {
+      Joystick.SETBUTTON(i,0);
+    }
     Joystick.SETXAXIS(512);
     Joystick.SETYAXIS(512);
     Joystick.SENDSTATE();
 }
 
-void OnPress(int key)
+
+//***PRINT DEBUG FUNCTION***//
+
+void printDebug(int key, int code)
 {
-  pressXAC(getJoystickButton(key));
-  /*
-  Serial.print("key: '");
-  Serial.print(key); 
-  Serial.print(" ,char key: '");
-  Serial.print((char)key); 
-  Serial.print(" ,XAC key: "); 
-  Serial.print(getJoystickButton(key));
-  Serial.print(" ,MOD: ");
-  */
-  if (keyboard1) {
-    /*
-    Serial.print(keyboard1.getModifiers(), HEX);
-    Serial.print(" OEM: ");
-    Serial.print(keyboard1.getOemKey(), HEX);
-    Serial.print(" LEDS: ");
-    Serial.println(keyboard1.LEDS(), HEX);
-    */
-    //} else {
-    //Serial.print(keyboard2.getModifiers(), HEX);
-    //Serial.print(" OEM: ");
-    //Serial.print(keyboard2.getOemKey(), HEX);
-    //Serial.print(" LEDS: ");
-    //Serial.println(keyboard2.LEDS(), HEX);
-  }
+    Serial.print("key = ");
+    Serial.print(key);
+    Serial.print("keyCode = ");
+    Serial.print(code);
+    Serial.println();      
 
-  //Serial.print("key ");
-  //Serial.print((char)keyboard1.getKey());
-  //Serial.print("  ");
-  //Serial.print((char)keyboard2.getKey());
-  //Serial.println();
 }
-
-void OnRelease(int key)
-{
-   //Serial.println("Release");
-   Joystick.SETXAXIS(512);
-   Joystick.SETYAXIS(512);
-   for (int i = 1; i <= 8; i++) {
-      Joystick.SETBUTTON(i,0);
-    }
-   Joystick.SENDSTATE();
-}
-
-//=============================================================================
-// UpdateActiveDeviceInfo
-//=============================================================================
-/*
-void UpdateActiveDeviceInfo() {
-  for (uint8_t i = 0; i < CNT_DEVICES; i++) {
-    if (*drivers[i] != driver_active[i]) {
-      if (driver_active[i]) {
-        Serial.printf("*** Device %s - disconnected ***\n", driver_names[i]);
-        driver_active[i] = false;
-      } else {
-        Serial.printf("*** Device %s %x:%x - connected ***\n", driver_names[i], drivers[i]->idVendor(), drivers[i]->idProduct());
-        driver_active[i] = true;
-
-        const uint8_t *psz = drivers[i]->manufacturer();
-        if (psz && *psz) Serial.printf("  manufacturer: %s\n", psz);
-        psz = drivers[i]->product();
-        if (psz && *psz) Serial.printf("  product: %s\n", psz);
-        psz = drivers[i]->serialNumber();
-        if (psz && *psz) Serial.printf("  Serial: %s\n", psz);
-
-        if (drivers[i] == &bluet) {
-          const uint8_t *bdaddr = bluet.myBDAddr();
-          // remember it...
-          Serial.printf("  BDADDR: %x:%x:%x:%x:%x:%x\n", bdaddr[0], bdaddr[1], bdaddr[2], bdaddr[3], bdaddr[4], bdaddr[5]);
-        }
-      }
-    }
-  }
-  for (uint8_t i = 0; i < CNT_HIDDEVICES; i++) {
-    if (*hiddrivers[i] != hid_driver_active[i]) {
-      if (hid_driver_active[i]) {
-        Serial.printf("*** HID Device %s - disconnected ***\n", hid_driver_names[i]);
-        hid_driver_active[i] = false;
-      } else {
-        Serial.printf("*** HID Device %s %x:%x - connected ***\n", hid_driver_names[i], hiddrivers[i]->idVendor(), hiddrivers[i]->idProduct());
-        hid_driver_active[i] = true;
-
-        const uint8_t *psz = hiddrivers[i]->manufacturer();
-        if (psz && *psz) Serial.printf("  manufacturer: %s\n", psz);
-        psz = hiddrivers[i]->product();
-        if (psz && *psz) Serial.printf("  product: %s\n", psz);
-        psz = hiddrivers[i]->serialNumber();
-        if (psz && *psz) Serial.printf("  Serial: %s\n", psz);
-      }
-    }
-  }
-  // Then Bluetooth devices
-  for (uint8_t i = 0; i < CNT_BTHIDDEVICES; i++) {
-    if (*bthiddrivers[i] != bthid_driver_active[i]) {
-      if (bthid_driver_active[i]) {
-        Serial.printf("*** BTHID Device %s - disconnected ***\n", bthid_driver_names[i]);
-        bthid_driver_active[i] = false;
-      } else {
-        Serial.printf("*** BTHID Device %s - connected ***\n", bthid_driver_names[i]); Serial.flush();
-        bthid_driver_active[i] = true;
-        #if 0
-
-        const uint8_t *psz = bthiddrivers[i]->manufacturer();
-        if (psz && *psz) Serial.printf("  manufacturer: %s\n", psz);
-        psz = bthiddrivers[i]->product();
-        if (psz && *psz) Serial.printf("  product: %s\n", psz);
-        psz = bthiddrivers[i]->serialNumber();
-        if (psz && *psz) Serial.printf("  Serial: %s\n", psz);
-    #endif  
-      }
-    }
-  }
-}
-*/

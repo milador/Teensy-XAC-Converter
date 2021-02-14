@@ -27,7 +27,6 @@ We now go over the hardware and software requirements.
   
   4. Solder the SparkFun Qwiic Shield for Teensy and connect SparkFun Qwiic Button if you need to manually connect or disconnect the bluetooth connection 
   
-  5. 
   
 # Software requirements  
 

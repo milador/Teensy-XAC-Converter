@@ -13,6 +13,9 @@ We now go over the hardware and software requirements.
   2. [USB Host Cable For Teensy 3.6](https://www.pjrc.com/store/cable_usb_host_t36.html) x 1
   3. [Kinivo BTD-400 Bluetooth 4.0](https://www.amazon.com/gp/product/B007Q45EF4) or [TechKey 4.0 EDR](https://www.amazon.com/gp/product/B07J5WFPXX/) or [ZEXMTE Bluetooth USB Adapter CSR 4.0](https://www.amazon.com/gp/product/B0775YF36R) x 1
   4. Micro SD card x 1 (optional)
+  5. [SparkFun Qwiic Shield for Teensy](https://www.sparkfun.com/products/17156) x 1 (optional)
+  6. [SparkFun Qwiic Button](https://www.sparkfun.com/products/15932) x 1 (optional)
+  7. [SparkFun Micro OLED Breakout (Qwiic)](https://www.sparkfun.com/products/14532) x 1 (optional)
 
 # Hardware Assembly Instructions   
 
@@ -20,13 +23,19 @@ We now go over the hardware and software requirements.
 
   2. Connect the USB Host Cable to Teensy 3.6 board via 5 pin header.
   
-  3. Plug the Bluetooth USB Dongle to the USB plug connector of USB Host cable .
+  3. Plug the Bluetooth USB Dongle to the USB plug connector of USB Host cable.
+  
+  4. Solder the SparkFun Qwiic Shield for Teensy and connect SparkFun Qwiic Button if you need to manually connect or disconnect the bluetooth connection 
+  
+  5. 
   
 # Software requirements  
 
   1. Install latest version of Arduino IDE according to the official documents on [arduino.cc](https://www.arduino.cc/en/software).
   
   2. Install latest version of Teensyduino software add-on for the Arduino according to the official documents on [pjrc.com/teensy/teensyduino.html](https://www.pjrc.com/teensy/teensyduino.html).
+  
+  3. Make sure you check "USBHost_t36" library is checked and installed during Teensyduino installation 
   
  # Software installation 
  
@@ -164,8 +173,27 @@ We now go over the hardware and software requirements.
         
  3.	Upload main software to your Teensy 3.6 board. The following software are available:
  
-  3.1 [XAC_Input_BT_KeyMice.ino](https://raw.githubusercontent.com/milador/XAC-Input-Converter/main/Software/XAC_Inputs/Bluetooth/XAC_Input_BT_KeyMice/XAC_Input_BT_KeyMice.ino?token=ABFGPIP4PXD3GN5QYPNZB6S76KJJO) : Bluetooth Keyboard & Mice to USB Joystick 
+  3.1 [BTKeyboardToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTKeyboardToGamepad/BTKeyboardToGamepad.ino?token=ABFGPIOZUL4IACG56LDRMBLAFC7Y2) : Bluetooth Keyboard to USB Gamepad 
+  
+  3.2 [BTMouseToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTMouseToGamepad/BTMouseToGamepad.ino?token=ABFGPIJNWXBODMVGF6PHIL3AFC76G) : Bluetooth Mouse to USB Gamepad 
 
 # Usage
 
-TODO
+1. Open [BTKeyboardToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTKeyboardToGamepad/BTKeyboardToGamepad.ino?token=ABFGPIOZUL4IACG56LDRMBLAFC7Y2) or [BTMouseToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTMouseToGamepad/BTMouseToGamepad.ino?token=ABFGPIJNWXBODMVGF6PHIL3AFC76G) with Arduino IDE.
+
+2. Select Tools > Boards > Teensy 3.6
+
+3. Select Tools > USB Type > Joystick + Serial
+
+4. Verify and Upload the code to Teensy 3.6 using Arduino IDE
+
+5. Connect and Power Teensy 3.6 by connecting it through main micro USB to your XAC
+
+6. Turn on your Bluetooth Keyboard or Mice and press Connect/Pair button
+
+7. The led on your keyboard or mice will initially blink and then stay on once it's paird.
+
+8. You will need to pair the mice or keyboard for every usage at the moment. Ultimately, you can skip pairing for every usage by commenting and uncommenting following lines:
+
+		// BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
+		//BluetoothController bluet(myusb);   // version assumes it already was paired

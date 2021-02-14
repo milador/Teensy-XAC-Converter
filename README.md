@@ -5,9 +5,9 @@ This project is in development process at the moment.
 
 We now go over the hardware and software requirements.
 
-## Hardware Requirements
+## Hardware 
 
-### Bluetooth Wheelchair Joystick Hardware 
+### Bluetooth Joystick Hardware Requirements
 
   1. [Teensy 3.6](https://www.pjrc.com/store/teensy36.html) x 1
   2. [USB Host Cable For Teensy 3.6](https://www.pjrc.com/store/cable_usb_host_t36.html) x 1
@@ -17,7 +17,7 @@ We now go over the hardware and software requirements.
   6. [SparkFun Qwiic Button](https://www.sparkfun.com/products/15932) x 1 (optional)
   7. [SparkFun Micro OLED Breakout (Qwiic)](https://www.sparkfun.com/products/14532) x 1 (optional)
 
-# Hardware Assembly Instructions   
+### Hardware Assembly Instructions   
 
   1. Solder a 5 pin male connector to Teensy 3.6 board.
 
@@ -27,8 +27,9 @@ We now go over the hardware and software requirements.
   
   4. Solder the SparkFun Qwiic Shield for Teensy and connect SparkFun Qwiic Button if you need to manually connect or disconnect the bluetooth connection 
   
+## Software
   
-# Software requirements  
+### Software requirements  
 
   1. Install latest version of Arduino IDE according to the official documents on [arduino.cc](https://www.arduino.cc/en/software).
   
@@ -36,7 +37,7 @@ We now go over the hardware and software requirements.
   
   3. Make sure you check "USBHost_t36" library is checked and installed during Teensyduino installation 
   
- # Software installation 
+ ### Software installation 
  
 1.	Make Core changes to Arduino Teensy core file. This can be done manually using following instructions or simply replacing the files with those included in [joystick_teensy_2.0_20201230.zip](https://github.com/milador/XAC-Input-Converter/raw/main/Software/Library/joystick_teensy_2.0_20201230.zip).
 
@@ -176,7 +177,7 @@ We now go over the hardware and software requirements.
   
   3.2 [BTMouseToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTMouseToGamepad/BTMouseToGamepad.ino?token=ABFGPIJNWXBODMVGF6PHIL3AFC76G) : Bluetooth Mouse to USB Gamepad 
 
-# Usage
+## Usage
 
 1. Open [BTKeyboardToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTKeyboardToGamepad/BTKeyboardToGamepad.ino?token=ABFGPIOZUL4IACG56LDRMBLAFC7Y2) or [BTMouseToGamepad.ino](https://raw.githubusercontent.com/milador/Teensy-XAC-Converter/main/Software/Bluetooth/BTMouseToGamepad/BTMouseToGamepad.ino?token=ABFGPIJNWXBODMVGF6PHIL3AFC76G) with Arduino IDE.
 
@@ -197,7 +198,7 @@ We now go over the hardware and software requirements.
 		// BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
 		//BluetoothController bluet(myusb);   // version assumes it already was paired
 		
-# Tested Devices 
+## Tested Devices 
 
  <table style="width:100%">
   <tr>

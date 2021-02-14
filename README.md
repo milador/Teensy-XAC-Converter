@@ -197,3 +197,23 @@ We now go over the hardware and software requirements.
 
 		// BluetoothController bluet(myusb, true, "0000");   // Version does pairing to device
 		//BluetoothController bluet(myusb);   // version assumes it already was paired
+		
+# Tested Devices 
+
+ <table style="width:100%">
+  <tr>
+    <th>Device Name</th>
+    <th>Purchase Link</th>
+    <th>Type</th>
+  </tr>
+    <tr>
+    <td>Logitech Bluetooth Mouse M557</td>
+    <td>https://www.amazon.ca/gp/product/B00JUHDYSO</td>
+    <td>BT Mice</td>
+  </tr>
+  <tr>
+    <td>Rii i8+ Mini Bluetooth Keyboard</td>
+    <td>https://www.amazon.ca/Rii-Bluetooth-Touchpad＆QWERTY-Smartphones-Raspberry/dp/B00JO80LVW</td>
+    <td>BT Keyboard</td>
+  </tr>
+</table>
